@@ -4,7 +4,8 @@ import { bot } from '../_bot';
 import { env } from '../_env';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  const secret = req.query.secret;
+  const q = req.query.secret;
+  const secret = Array.isArray(q) ? q[0] : q;
   if (!secret || secret !== env.WEBHOOK_SECRET) {
     res.status(403).send('Forbidden');
     return;
