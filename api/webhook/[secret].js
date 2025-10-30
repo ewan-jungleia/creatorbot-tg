@@ -17,7 +17,6 @@ module.exports = async (req, res) => {
     await handle(req, res);
   } catch (e) {
     console.error('webhook_error', e);
-    // On renvoie 200 pour éviter les retries Telegram en boucle
     res.status(200).json({ ok: true });
   }
 };
