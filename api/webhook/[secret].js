@@ -1,29 +1,35 @@
-const TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const https = require('https');
 
-async function sendMessage(chat_id, text) {
-  const url = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
-  const body = { chat_id, text };
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type':'application/json' },
-    body: JSON.stringify(body)
+function sendMessage(token, chatId, text) {
+  return new Promise((resolve) => {
+    const data = JSON.stringify({ chat_id: chatId, text });
+    const req = https.request(
+      {
+        hostname: 'api.telegram.org',
+        path: `/bot${token}/sendMessage`,
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) }
+      },
+      (res) => { res.on('data',()=>{}); res.on('end', resolve); }
+    );
+    req.on('error', resolve);
+    req.write(data);
+    req.end();
   });
-  return res.json().catch(() => ({}));
 }
 
 module.exports = async (req, res) => {
   if (req.method === 'GET') { res.status(200).send('ok'); return; }
+  const token = process.env.TELEGRAM_BOT_TOKEN;
   try {
-    const update = typeof req.body === 'string' ? JSON.parse(req.body) : req.body || {};
-    const msg = update.message || update.edited_message || update.callback_query?.message;
-    const chatId = msg?.chat?.id;
-    const text = update.message?.text;
-
-    if (chatId && text) {
-      await sendMessage(chatId, '✅ Bot en ligne (mode brut).');
+    const body = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
+    const msg = body.message || body.edited_message || (body.callback_query && body.callback_query.message) || null;
+    const chatId = msg && msg.chat && msg.chat.id;
+    if (token && chatId) {
+      await sendMessage(token, chatId, '✅ Bot en ligne (réponse directe).');
     }
-    res.status(200).json({ ok:true });
-  } catch (e) {
-    res.status(200).json({ ok:true });
+    res.status(200).json({ ok: true });
+  } catch {
+    res.status(200).json({ ok: true });
   }
 };
