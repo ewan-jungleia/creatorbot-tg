@@ -1,4 +1,4 @@
-function required(name){const v=process.env[name];if(!v)throw new Error(`Missing env: ${name}`);return v;}
-module.exports={
-  TELEGRAM_BOT_TOKEN:required('TELEGRAM_BOT_TOKEN')
+module.exports = {
+  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
+  WEBHOOK_SECRET: process.env.WEBHOOK_SECRET,
 };
