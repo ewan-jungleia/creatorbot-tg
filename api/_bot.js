@@ -1,14 +1,11 @@
-import { Bot, InlineKeyboard } from 'grammy';
-import { env } from './_env';
-import { logger } from './_logger';
+const { Bot, InlineKeyboard } = require('grammy');
+const env = require('./_env');
+const logger = require('./_logger');
 
-export const bot = new Bot(env.TELEGRAM_BOT_TOKEN);
+const bot = new Bot(env.TELEGRAM_BOT_TOKEN);
 
 bot.command('start', async (ctx) => {
-  const kb = new InlineKeyboard()
-    .text('Nouveau projet', 'new_project')
-    .row()
-    .text('Aide', 'help');
+  const kb = new InlineKeyboard().text('Nouveau projet', 'new_project').row().text('Aide', 'help');
   await ctx.reply('Bienvenue sur CreatorBotTG V1.\nQue veux-tu faire ?', { reply_markup: kb });
 });
 
@@ -22,6 +19,6 @@ bot.callbackQuery('new_project', async (ctx) => {
   await ctx.reply('Envoie le titre du projet en un message.');
 });
 
-bot.catch((err) => {
-  logger.error({ err }, 'Bot error');
-});
+bot.catch((err) => logger.error({ err }, 'Bot error'));
+
+module.exports = bot;
